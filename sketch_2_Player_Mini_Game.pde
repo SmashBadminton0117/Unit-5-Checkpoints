@@ -1,3 +1,7 @@
+import processing.sound.*;
+
+
+
 color white      = #FFFFFF;
 color black      = 0000000;
 color darkPurple = #42213D;
@@ -5,19 +9,24 @@ color pink       = #F57FEF;
 color blue  = #70B3ED;
 
 //target: ----------------------------------------
-
+//player
 float player1x, player1y, player1d;
 
 float player2x, player2y, player2d;
 
 //ball:
-float ballX, ballY, ballD;
+float shuttlecockx, shuttlecocky, shuttlecockd;
 
 //hole:
 float holex, holey, holed;
 
 //points:
 int points;
+
+//sound variables:
+SoundFile fail;
+SoundFile success;
+SoundFile music;
 
 // Key Variables: -------------------------------
 
@@ -30,6 +39,12 @@ float ax, ay;
 
 void setup() {
   size(600, 600);
+  
+  //Load Sounds:
+  fail = new SoundFile(this, "FAILURE.wav");
+  success = new SoundFile(this, "SUCCESS.wav");
+  music = new SoundFile(this, "MUSIC.mp3");
+  
   player1x = width/2;
   player1y = height/2;
   player2x = width/2;
@@ -39,9 +54,9 @@ void setup() {
   player2d = 100;
 
   //ball setup:
-  ballX = width/2;
-  ballY = height/2;
-  ballD = 50;
+  shuttlecockx = width/2;
+  shuttlecocky = height/2;
+  shuttlecockd = 50;
 
   vx = random(-5, 5);
   vy = random(-5, 5);
@@ -56,6 +71,12 @@ void setup() {
   
   //points:
   points = 0;
+  
+  music.loop();
+
+  music.amp(1);
+  
+  
 }
 
 void draw() {
@@ -85,11 +106,11 @@ void draw() {
   stroke(white);
   fill(pink);
 
-  circle(ballX, ballY, ballD);
+  circle(shuttlecockx, shuttlecocky, shuttlecockd);
 
   //movement
-  ballX += vx;
-  ballY += vy;
+  shuttlecockx += vx;
+  shuttlecocky += vy;
 
   //gravity
   //vx = vx + ax;
@@ -97,24 +118,24 @@ void draw() {
 
 
   //bouncing off walls
-  if (ballY - ballD/2 <= 0) {
+  if (shuttlecocky - shuttlecockd/2 <= 0) {
     vy = -vy;
-    ballY = ballD/2;
+    shuttlecocky = shuttlecockd/2;
   }
 
-  if (ballY + ballD/2 >= height) {
+  if (shuttlecocky + shuttlecockd/2 >= height) {
     vy = -vy;
-    ballY = height - ballD;
+    shuttlecocky = height - shuttlecockd;
   }
 
-  if (ballX - ballD/2 <= 0) {
+  if (shuttlecockx - shuttlecockd/2 <= 0) {
     vx = -vx;
-    ballX = ballD/2;
+    shuttlecockx = shuttlecockd/2;
   }
 
-  if (ballX + ballD/2 >= width) {
+  if (shuttlecockx + shuttlecockd/2 >= width) {
     vx = -vx;
-    ballX = width - ballD/2;
+    shuttlecockx = width - shuttlecockd/2;
   }
   
   //drawHole:
@@ -124,21 +145,21 @@ void draw() {
 
   //Ball bouncing off of player
   //player1:
-  if ( dist(player1x, player1y, ballX, ballY) <= player1d/2 + ballD/2) {
-    vy = (ballY - player1y)/5;
-    vx = (ballX - player1x)/5;
+  if ( dist(player1x, player1y, shuttlecockx, shuttlecocky) <= player1d/2 + shuttlecockd/2) {
+    vy = (shuttlecocky - player1y)/5;
+    vx = (shuttlecockx - player1x)/5;
   }
   
   //player2:
-  if ( dist(player2x, player2y, ballX, ballY) <= player2d/2 + ballD/2) {
-    vy = (ballY - player2y)/5;
-    vx = (ballX - player2x)/5;
+  if ( dist(player2x, player2y, shuttlecockx, shuttlecocky) <= player2d/2 + shuttlecockd/2) {
+    vy = (shuttlecocky - player2y)/5;
+    vx = (shuttlecockx - player2x)/5;
   }
   
-  if ( dist(holex, holey, ballX, ballY) <= holed/2 + ballD/2 ) {
+  if ( dist(holex, holey, shuttlecockx, shuttlecocky) <= holed/2 + shuttlecockd/2 ) {
     points = points + 1;
-    ballX = width/2;
-    ballY = ballD/2;
+    shuttlecockx = width/2;
+    shuttlecocky = shuttlecockd/2;
   }
   
   textSize(40);
@@ -161,6 +182,9 @@ void keyPressed() {
 }
 
 void keyReleased() {
+  fail.stop();
+  fail.play();
+  
   if ( key == 'a') aKey = false;
   if ( key == 'd') dKey = false;
   if ( key == 'w') wKey = false;
